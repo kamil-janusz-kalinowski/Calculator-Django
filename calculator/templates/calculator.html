@@ -1,0 +1,120 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculator</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>Calculator</h1>
+    
+    <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="calc_chars" value="{{ calc_chars }}" readonly>
+        
+        <div>
+            <button class="button" type="button" onclick="appendValue('1')">1</button>
+            <button class="button" type="button" onclick="appendValue('2')">2</button>
+            <button class="button" type="button" onclick="appendValue('3')">3</button>
+            <button class="button" type="button" onclick="appendValue('+')">+</button>
+        </div>
+        <div>
+            <button class="button" type="button" onclick="appendValue('4')">4</button>
+            <button class="button" type="button" onclick="appendValue('5')">5</button>
+            <button class="button" type="button" onclick="appendValue('6')">6</button>
+            <button class="button" type="button" onclick="appendValue('-')">-</button>
+        </div>
+        <div>
+            <button class="button" type="button" onclick="appendValue('7')">7</button>
+            <button class="button" type="button" onclick="appendValue('8')">8</button>
+            <button class="button" type="button" onclick="appendValue('9')">9</button>
+            <button class="button" type="button" onclick="appendValue('*')">*</button>
+        </div>
+        <div>
+            <button class="button" type="button" onclick="appendValue('C')">C</button>
+            <button class="button" type="button" onclick="appendValue('0')">0</button>
+            <button class="button" type="button" onclick="appendValue('.')">.</button>
+            <button class="button" type="button" onclick="appendValue('/')">/</button>
+        </div>
+        <div>
+            <button class="button double" type="button" onclick="appendValue('CE')">CE</button>
+            <button class="button double" type="submit">=</button>
+        </div>
+    </form>
+    
+    
+    <script>
+        function appendValue(value) {
+            // Add input from calculator-button to array of chars calc_chars
+            var input = document.querySelector('input[name="calc_chars"]');
+            var operators = ['+', '-', '*', '/'];
+            var lastChar = input.value.slice(-1);
+            msg = 'lastChar: ' + lastChar + ', value: ' + value;
+            console.log(msg);
+            if (isRepeatedSpecialChar(lastChar, value)) {
+                input.value = input.value.slice(0, -1) + value;
+            } else if (value === 'CE') {
+                input.value = '';
+            }else if (value === 'C') {
+                input.value = input.value.slice(0, -1);
+            }else if (value === '.' && (operators.includes(lastChar) || lastChar === '')) {
+                input.value += '0' + value;
+            } 
+            else if (value === '.') {
+                if (isDotUsed(input.value)) {
+                    // There is already a dot in the number
+                    return;
+                } else {
+                    input.value += value;
+                }
+            }
+            else {
+                input.value += value;
+            }
+        }
+        
+        function isRepeatedSpecialChar(lastChar, newChar) {
+            // Check if there are two operators in a row or two dots in a row
+            var input = document.querySelector('input[name="calc_chars"]');
+            var operators = ['+', '-', '*', '/'];
+            var lastChar = input.value.slice(-1);
+            var secondLastChar = input.value.slice(-2, -1);
+
+            var isRepeatedOperator = operators.includes(lastChar) && operators.includes(newChar);
+            var isRepeatedDot = lastChar === '.' && newChar === '.';
+
+            if (isRepeatedDot || isRepeatedOperator) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        function isDotUsed(text) {
+            var lastDotIndex = text.lastIndexOf('.');
+            if (lastDotIndex == -1) {
+                return false;
+            }
+
+            var operators = ['+', '-', '*', '/'];
+            var lastOperatorIndex = -1;
+
+            for (var i = 0; i < operators.length; i++) {
+                var operatorIndex = text.lastIndexOf(operators[i]);
+                if (operatorIndex > lastOperatorIndex) {
+                    lastOperatorIndex = operatorIndex;
+                }
+            }
+            msg('lastDotIndex: ' + lastDotIndex + ', lastOperatorIndex: ' + lastOperatorIndex);
+            if (lastDotIndex > lastOperatorIndex) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    </script>
+</body>
+</html>
