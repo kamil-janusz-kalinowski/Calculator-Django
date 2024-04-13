@@ -7,7 +7,6 @@ def calculator_view(request):
         calc_chars = request.POST.get('calc_chars')
 
         elements = separate_chars(calc_chars)
-        print(elements)
 
         # Calculate the result
         result = calculate_result(elements)
